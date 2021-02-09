@@ -9,13 +9,14 @@ import checkResults from "../utils/checkResults";
 import { Card } from "react-native-elements";
 
 type Props = {
-  gameState?: State | undefined;
+  gameState?: State;
   opponent?: any;
   handleUpdate?: (gameState: State) => void | undefined;
 };
 
 type State = {
-  scale: any;
+  role?: string;
+  scale?: any;
   goatsAvailable: number;
   tigersAvailable: number;
   goatsKept: number;
@@ -25,6 +26,7 @@ type State = {
   tigerTurn: boolean;
 
 };
+
 let windowWidth = Math.round(Dimensions.get("window").width);
 let windowHeight = Math.round(Dimensions.get("window").height);
 const horizontalHolderSpacing =
@@ -100,7 +102,7 @@ export default class extends React.Component<Props, State> {
 
 
   updateState = (newState: any) => {
-    if (this.props.gameState) {
+    if (this.props.gameState && this.props.handleUpdate) {
       this.props.handleUpdate(newState);
     }
     this.setState(() => ({ ...newState }));
@@ -169,6 +171,9 @@ export default class extends React.Component<Props, State> {
     move: string,
     step: number
   ) => {
+    if (this.props.gameState?.role && this.props.gameState?.role === GOAT) {
+      return false;
+    }
     console.log(
       "checking move validity ",
       move,
@@ -213,6 +218,9 @@ export default class extends React.Component<Props, State> {
     newPosition: number,
     move: string | undefined
   ) => {
+    if (this.props.gameState?.role && this.props.gameState?.role === TIGER) {
+      return false;
+    }
     console.log(
       "checking move validity ",
       move,
@@ -316,7 +324,9 @@ export default class extends React.Component<Props, State> {
             <Text style={styles.numberStyle}>{this.state.goatsKilled}</Text>
           </Text>
           {this.props.opponent && <Text style={styles.textStyle}>
-            Opponent: {this.props.opponent.displayName}
+            You're : {this.props.gameState?.role}
+             Opponent : {this.props.opponent.displayName}
+
           </Text>}
 
         </View>

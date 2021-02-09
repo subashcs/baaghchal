@@ -18,7 +18,7 @@ export default class Login extends React.Component<IAppProps> {
   provider;
   constructor(props: any) {
     super(props);
-    this.state  = {user:null};
+    this.state = { user: null };
 
     if (firebase) {
       this.provider = new firebase.auth.GoogleAuthProvider();
@@ -28,12 +28,20 @@ export default class Login extends React.Component<IAppProps> {
   }
 
   componentDidMount() {
+
     this.initAsync();
     this.isLoggedIn();
   }
   initAsync = async () => {
-    await GoogleSignIn.initAsync();
-    this._syncUserWithStateAsync();
+    try {
+      await GoogleSignIn.initAsync({
+        clientId:
+          "client315179412456-6adm42mv84ui609idfan14ijvtm7b3mo.apps.googleusercontent.comId"
+      });
+
+    } catch ({ message }) {
+      alert("GoogleSignIn.initAsync(): " + message);
+    }
   };
   _syncUserWithStateAsync = async () => {
     const user = await GoogleSignIn.signInSilentlyAsync();
@@ -66,14 +74,9 @@ export default class Login extends React.Component<IAppProps> {
   };
 
   fire = () => {
-    // this.props.navigation.navigate("PlayerList");
 
-    // let dbref = firebase.database().ref("/");
-    // dbref.set({
-    //   members: { test: "hello" },
-    // });
-    console.log("firing");
-    if (!firebase) return;
+    if (!firebase || this.provider) return;
+
     firebase
       .auth()
       .signInWithPopup(this.provider)
