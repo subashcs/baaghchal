@@ -2,6 +2,12 @@ import * as React from "react";
 import { View, Text, Button } from "react-native";
 import { Card, Input } from "react-native-elements";
 import firebase from "../setup/firebase";
+import * as AppAuth from 'expo-app-auth';
+
+// When configured correctly, URLSchemes should contain your REVERSED_CLIENT_ID
+const { URLSchemes } = AppAuth;
+console.log(URLSchemes);
+import * as GoogleSignIn from 'expo-google-sign-in';
 // Initialize Firebase
 
 export interface IAppProps {
@@ -12,6 +18,7 @@ export default class Login extends React.Component<IAppProps> {
   provider;
   constructor(props: any) {
     super(props);
+    this.state  = {user:null};
 
     if (firebase) {
       this.provider = new firebase.auth.GoogleAuthProvider();
@@ -21,9 +28,32 @@ export default class Login extends React.Component<IAppProps> {
   }
 
   componentDidMount() {
+    this.initAsync();
     this.isLoggedIn();
   }
-
+  initAsync = async () => {
+    await GoogleSignIn.initAsync();
+    this._syncUserWithStateAsync();
+  };
+  _syncUserWithStateAsync = async () => {
+    const user = await GoogleSignIn.signInSilentlyAsync();
+    this.setState({ user });
+  };
+  signOutAsync = async () => {
+    await GoogleSignIn.signOutAsync();
+    this.setState({ user: null });
+  };
+  signInAsync = async () => {
+    try {
+      await GoogleSignIn.askForPlayServicesAsync();
+      const { type, user } = await GoogleSignIn.signInAsync();
+      if (type === 'success') {
+        this._syncUserWithStateAsync();
+      }
+    } catch ({ message }) {
+      alert('login: Error:' + message);
+    }
+  };
   isLoggedIn = () => {
     let user = firebase.auth().currentUser;
 
@@ -58,6 +88,8 @@ export default class Login extends React.Component<IAppProps> {
         // ...
       })
       .catch(function (error) {
+        console.log("got error", error);
+
         // Handle Errors here.
         var errorCode = error.code;
         var errorMessage = error.message;

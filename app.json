@@ -17,9 +17,19 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.expo.baaghchaal",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.315179412456-07odt6v8amrodud8ob8gmn8rar912ibv"
+        }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.expo.baaghchaal",
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

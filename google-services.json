@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "315179412456",
+    "firebase_url": "https://subashcs-a641f.firebaseio.com",
+    "project_id": "subashcs-a641f",
+    "storage_bucket": "subashcs-a641f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315179412456:android:d9cee23831acc52ee4525d",
+        "android_client_info": {
+          "package_name": "com.expo.baaghchaal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "315179412456-6adm42mv84ui609idfan14ijvtm7b3mo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiLfQI7xOsGzsPC_G1YKVmBnsuoRC6Kms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "315179412456-6adm42mv84ui609idfan14ijvtm7b3mo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

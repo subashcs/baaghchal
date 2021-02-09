@@ -15,8 +15,9 @@ import PlayerList from "./src/views/PlayerList";
 import OnlineMultiPlayer from "./src/views/OnlineMultiPlayer";
 
 const Stack = createStackNavigator();
+import timerfix from "./src/timer_issue";
 
-
+timerfix();
 
 export default function App() {
   return (

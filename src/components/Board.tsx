@@ -16,7 +16,7 @@ export interface IAppProps {
     initialPosition: number,
     newPosition: number,
     move: string | undefined
-  ) => void;
+  ) => boolean;
   moveGoat: (initialPosition: number, newPosition: number) => void;
   resetGoatMove: (position: number) => void;
 
@@ -45,6 +45,8 @@ type State = {
   selected: number | null;
   tigerTurn: boolean;
 };
+
+
 export default class Board extends React.Component<IAppProps> {
   constructor(props: any) {
     super(props);
@@ -140,11 +142,11 @@ export default class Board extends React.Component<IAppProps> {
   };
   public render() {
     return (
-      <>
+      <React.Fragment>
         {this.renderBoard()}
         {this.renderHolders()}
         {this.renderTigerGoats()}
-      </>
+      </React.Fragment>
     );
   }
 }

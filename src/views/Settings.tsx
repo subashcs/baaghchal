@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
-import { View, Picker, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { Store, Types } from "../store";
-
+import {Picker } from '@react-native-community/picker';
 export interface ISettingsProps {}
 
 const Settings: React.FC = (props) => {
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "space-around",
     alignItems: "center",
-    width: "100%",
   },
   label: {
     color: "#3f51b5",
@@ -46,7 +45,6 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
   pickerStyle: {
-    width: "initial",
     height: 50,
     borderRadius: 5,
     padding: 15,

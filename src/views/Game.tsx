@@ -1,15 +1,17 @@
 import React from "react";
-import { Animated, View, StyleSheet, Dimensions, Text } from "react-native";
+import { Animated, View, StyleSheet, Dimensions, Text, Button } from "react-native";
 import { Svg, Rect } from "react-native-svg";
 import allowedMoves, { TIGER, GOAT } from "../constants";
 
 import Board from "../components/Board";
 import { Store } from "../store";
+import checkResults from "../utils/checkResults";
+import { Card } from "react-native-elements";
 
 type Props = {
-  gameState: State | undefined;
-  opponent:any;
-  handleUpdate: (gameState: State) => void | undefined;
+  gameState?: State | undefined;
+  opponent?: any;
+  handleUpdate?: (gameState: State) => void | undefined;
 };
 
 type State = {
@@ -21,7 +23,7 @@ type State = {
   boardState: Array<string | null>;
   selected: number | null;
   tigerTurn: boolean;
-  
+
 };
 let windowWidth = Math.round(Dimensions.get("window").width);
 let windowHeight = Math.round(Dimensions.get("window").height);
@@ -29,6 +31,9 @@ const horizontalHolderSpacing =
   windowHeight < windowWidth ? windowHeight / 5.5 : windowWidth / 5;
 const verticalHolderSpacing =
   windowHeight > windowWidth ? horizontalHolderSpacing : windowHeight / 5.8;
+
+
+
 export default class extends React.Component<Props, State> {
   static contextType = Store;
 
@@ -61,15 +66,17 @@ export default class extends React.Component<Props, State> {
     // this.animate = this.animate.bind(this);
   }
   componentDidMount() {
-      const { state } = this.context;
+    const { state } = this.context;
 
-      let TOTAL_GOATS = state.goats;
+    let TOTAL_GOATS = state.goats;
 
-      let newState = { goatsAvailable: TOTAL_GOATS };
-      this.updateState(newState);
+    let newState = { goatsAvailable: TOTAL_GOATS };
+    this.updateState(newState);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+
+  static getDerivedStateFromProps(nextProps: Props, state: State) {
+
     if (nextProps.gameState) {
       let {
         boardState,
@@ -80,17 +87,20 @@ export default class extends React.Component<Props, State> {
       } = nextProps.gameState;
       if (
         Array.isArray(boardState) &&
-        boardState.length > 2 
+        boardState.length > 2
       ) {
         //update state
-        this.setState({tigerTurn,boardState,goatsAvailable,tigersAvailable,goatsKilled})
+        return ({ tigerTurn, boardState, goatsAvailable, tigersAvailable, goatsKilled })
       }
     }
+
+    // Return null to indicate no change to state.
+    return null;
   }
 
-  
+
   updateState = (newState: any) => {
-    if(this.props.gameState){
+    if (this.props.gameState) {
       this.props.handleUpdate(newState);
     }
     this.setState(() => ({ ...newState }));
@@ -224,12 +234,12 @@ export default class extends React.Component<Props, State> {
   };
 
   handleHolderClick = (position: number) => {
+    console.log("on position", position);
     if (this.state.tigerTurn) return;
     this.putGoat(position);
   };
 
   putGoat = (position: number) => {
-    console.log("got this number on click", position);
     let boardState = this.state.boardState;
     if (!boardState[position] && this.state.goatsAvailable > 0) {
       boardState[position] = GOAT;
@@ -252,9 +262,23 @@ export default class extends React.Component<Props, State> {
   render() {
 
     let { boardState, tigerTurn, goatsAvailable, selected } = this.state;
+    const { winner } = checkResults({ boardState, goatsAvailable });
+    if (winner) {
+      return (
+        <View style={styles.game}>
+          <Card>
+
+            <Text>{winner} won the game</Text>
+
+            <Button title="Restart" onPress={() => { }} />
+          </Card>
+
+        </View>
+      )
+    }
     return (
-      <>
-        <Svg height={verticalHolderSpacing * 5} width={windowWidth}>
+      <View style={styles.game}>
+        <Svg height={verticalHolderSpacing * 5} width={windowWidth} fill="white">
           <Rect
             fill="#bbbbbb"
             y="0"
@@ -291,15 +315,23 @@ export default class extends React.Component<Props, State> {
             Goats killed
             <Text style={styles.numberStyle}>{this.state.goatsKilled}</Text>
           </Text>
-          <Text style={styles.textStyle}>
-                  Opponent: {this.props.opponent ?this.props.opponent.displayName:""}
-          </Text>
+          {this.props.opponent && <Text style={styles.textStyle}>
+            Opponent: {this.props.opponent.displayName}
+          </Text>}
+
         </View>
-      </>
+      </View>
     );
   }
 }
 const styles = StyleSheet.create({
+  game: {
+    backgroundColor: "rgba(255,255,255,0.01)",
+    display: "flex",
+    justifyContent: "center",
+    height: "100%"
+
+  },
   textStyle: {
     color: "#f57c00",
     fontWeight: "bold",

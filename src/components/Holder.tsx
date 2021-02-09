@@ -41,10 +41,8 @@ const Holder: React.FC<NodeProps> = (props: NodeProps) => {
   let colPosition = n % 5;
   let rowPosition = Math.floor(n / 5);
 
-  // console.log("got", colPosition, rowPosition);
 
   return (
-    <>
       <Circle
         cx={colPosition * spacing + initialX}
         cy={initialY + rowPosition * vSpacing}
@@ -52,7 +50,7 @@ const Holder: React.FC<NodeProps> = (props: NodeProps) => {
         fill={boardColor}
         onPress={() => handleClick(n)}
       />
-    </>
+    
   );
 };
 export default Holder;
