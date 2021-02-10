@@ -248,6 +248,9 @@ export default class extends React.Component<Props, State> {
   };
 
   putGoat = (position: number) => {
+    if (this.props.gameState?.role && this.props.gameState?.role === TIGER) {
+      return false;
+    }
     let boardState = this.state.boardState;
     if (!boardState[position] && this.state.goatsAvailable > 0) {
       boardState[position] = GOAT;
@@ -276,7 +279,7 @@ export default class extends React.Component<Props, State> {
         <View style={styles.game}>
           <Card>
 
-            <Text>{winner} won the game</Text>
+            <Text>{winner === this.props?.gameState?.role ? "You" : (this.props.opponent ? this.props.opponent.displayName : winner)} won the game</Text>
 
             <Button title="Restart" onPress={() => { }} />
           </Card>

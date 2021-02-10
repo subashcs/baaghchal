@@ -102,7 +102,7 @@ function getPossibleNewPositionsTiger(
 ) {
   let possibleMoves = allowedMoves[initialPosition];
   let newPositions: Array<number> = [];
-  possibleMoves.map((direction: string) => {
+  possibleMoves.forEach((direction: string) => {
     let newPosition = findNextPositionTiger(initialPosition, direction, 1);
     if (
       newPosition &&
@@ -129,13 +129,13 @@ export function checkResults({
 
   const hasMovableTigers = (boardState: Array<string | null>) => {
     let tigersLocations: Array<number> = [];
-    boardState.map((item, index) => {
+    boardState.forEach((item, index) => {
       if (item === TIGER) {
         tigersLocations.push(index);
       }
     });
     let allPossiblePositions: Array<number> = [];
-    tigersLocations.map((position: number) => {
+    tigersLocations.forEach((position: number) => {
       let possibleNewPositions = getPossibleNewPositionsTiger(
         position,
         boardState

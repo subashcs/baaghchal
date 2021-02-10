@@ -1,8 +1,8 @@
-import React, { useEffect, useContext } from "react";
+import React, { useContext, useState } from "react";
 import { View } from "react-native";
 import Game from "./Game";
 import Match from '../db/matches';
-import allowedMoves, { TIGER, GOAT } from "../constants";
+import { TIGER, GOAT } from "../constants";
 import { Store } from "../store";
 import firebase from "../setup/firebase";
 
@@ -26,7 +26,7 @@ interface GameState {
 const OnlineMultiPlayer: React.FunctionComponent<IOnlineMultiPlayerProps> = (
   props
 ) => {
-  const { state, dispatch } = useContext(Store);
+  const { state } = useContext(Store);
 
   let { inviter, opponent } = props.route.params;
   let initialBoardState = Array(25).fill(null);
@@ -49,33 +49,43 @@ const OnlineMultiPlayer: React.FunctionComponent<IOnlineMultiPlayerProps> = (
   const [gameState, setGameState] = React.useState<GameState>(initialGameState);
 
   React.useEffect(() => {
+
+    let waitingUser;
+    let requestingUserId
+    //if user is the one invited
     if (inviter?.requestFrom) {
       //use to open match listener on opponent
       console.log("i am opponent");
 
-      initialGameState.role = TIGER; //create default role for 
 
       let opponent = firebase.auth().currentUser;
       if (!opponent) return;
-      let waitingUser = opponent?.uid;
-      let requestingUserId = inviter?.uid;
+      waitingUser = opponent?.uid;
+      requestingUserId = inviter?.uid;
+
+
+      initialGameState.role = TIGER; //create default role for 
+
       //create match in database
       Match.create(waitingUser, inviter.requestFrom, initialGameState);
-
-      startMatchListener(waitingUser, requestingUserId);
-
     }
+
+    //if current user is inviter
     if (opponent?.uid) {
       console.log("i am inviter");
       initialGameState.role = GOAT;
-      let inviter = firebase.auth().currentUser;
+      const inviter = firebase.auth().currentUser;
       if (!inviter) {
         return;
       }
-      let waitingUser = opponent.uid;
-      let requestingUserId = inviter.uid;
-      startMatchListener(waitingUser, requestingUserId);
+
+      waitingUser = opponent.uid;
+      requestingUserId = inviter.uid;
     }
+
+    //start match listener in both case
+    startMatchListener(waitingUser, requestingUserId);
+
 
   }, [])
 
@@ -101,10 +111,7 @@ const OnlineMultiPlayer: React.FunctionComponent<IOnlineMultiPlayerProps> = (
         goatsKilled: data.goatsKilled
       }))
     })
-    // matchesRef.on("child_added",(childSnapshot,prevChildKey)=>{
-    //   console.log("match listener child added",childSnapshot);
 
-    // })
   }
 
   const endMatchListener = (waitingUserId: string, requestingUserId: string) => {

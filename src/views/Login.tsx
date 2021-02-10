@@ -32,6 +32,7 @@ export default class Login extends React.Component<IAppProps> {
     this.initAsync();
     this.isLoggedIn();
   }
+
   initAsync = async () => {
     try {
       await GoogleSignIn.initAsync({
@@ -75,7 +76,7 @@ export default class Login extends React.Component<IAppProps> {
 
   fire = () => {
 
-    if (!firebase || this.provider) return;
+    if (!firebase) return;
 
     firebase
       .auth()
