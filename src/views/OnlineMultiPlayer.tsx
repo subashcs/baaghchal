@@ -108,7 +108,8 @@ const OnlineMultiPlayer: React.FunctionComponent<IOnlineMultiPlayerProps> = (
         boardState: tempBoardState,
         goatsAvailable: data.goatsAvailable,
         tigersAvailable: data.tigersAvailable,
-        goatsKilled: data.goatsKilled
+        goatsKilled: data.goatsKilled,
+        selected: data.selected
       }))
     })
 

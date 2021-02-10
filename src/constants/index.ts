@@ -83,4 +83,5 @@ export const allowedMoves: Array<Array<string>> = [
   [mv.top, mv.right, mv.left],
   [mv.top, mv.left, mv.topLeft],
 ];
+
 export default allowedMoves;

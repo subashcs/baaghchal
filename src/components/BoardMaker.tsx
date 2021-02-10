@@ -1,30 +1,10 @@
-import React, { Component } from "react";
-import { PanResponder, Animated, View, StyleSheet } from "react-native";
-
-import Svg, {
-  Circle,
-  Ellipse,
-  G,
-  Text,
-  TSpan,
-  TextPath,
-  Path,
-  Polygon,
-  Polyline,
-  Line,
-  Rect,
-  Use,
-  Image,
-  Symbol,
-  Defs,
-  LinearGradient,
-  RadialGradient,
-  Stop,
-  ClipPath,
-  Pattern,
-  Mask,
-} from "react-native-svg";
+import React from "react";
+import { View } from "react-native";
 import allowedMoves, { mv } from "../constants";
+import { BottomLine } from "./BottomLine";
+import { BottomRightLine } from "./BottomRightLine";
+import { RightLine } from "./RightLine";
+import { TopRightLine } from "./TopRightLine";
 export interface NodeProps {
   n: number;
   spacing: number;
@@ -44,88 +24,57 @@ const BoardMaker: React.FC<NodeProps> = (props: NodeProps) => {
   let bottomRightChecker = allowedMoves[n].includes(mv.bottomRight);
 
   return (
-    <G>
+    <View>
       {allowedMoves[n].includes(mv.bottom) && (
-        <Line
-          style={{
-            fill: "none",
-            zIndex: 1,
-            position: "absolute",
 
-            stroke: "#000",
-            strokeWidth: "3.56500006",
-            strokeLinecap: "butt",
-            strokeLinejoin: "bevel",
-          }}
+        <BottomLine
           x1={colPosition * spacing + initialX}
           y2={initialY + vSpacing * (1 + rowPosition)}
           x2={colPosition * spacing + initialX}
-          y1={initialY + rowPosition * vSpacing}
-          stroke="#aff"
-          strokeWidth="2"
-        />
+          y1={initialY + rowPosition * vSpacing} />
+
       )}
       {topRightChecker && (
-        <Line
-          style={{
-            fill: "none",
-            zIndex: 1,
-            position: "absolute",
 
-            stroke: "#000",
-            strokeWidth: "3.56500006",
-            strokeLinecap: "butt",
-            strokeLinejoin: "bevel",
-          }}
+        <TopRightLine
+
           x1={colPosition * spacing + initialX}
           y1={initialY + rowPosition * vSpacing}
           x2={(colPosition + 1) * spacing + initialX}
           y2={(rowPosition - 1) * vSpacing + initialY}
-          stroke="#aff"
-          strokeWidth="2"
+
         />
+
       )}
       {bottomRightChecker && (
-        <Line
-          style={{
-            fill: "none",
-            zIndex: 1,
-            position: "absolute",
 
-            stroke: "#000",
-            strokeWidth: "3.56500006",
-            strokeLinecap: "butt",
-            strokeLinejoin: "bevel",
-          }}
+        <BottomRightLine
+          spacing={spacing}
+          vSpacing={vSpacing}
           x1={colPosition * spacing + initialX}
           y1={initialY + rowPosition * vSpacing}
           x2={(colPosition + 1) * spacing + initialX}
           y2={(rowPosition + 1) * vSpacing + initialY}
-          stroke="#aff"
-          strokeWidth="2"
         />
+
       )}
 
       {allowedMoves[n].includes(mv.right) && (
-        <Line
-          style={{
-            fill: "none",
-            zIndex: 1,
-            position: "absolute",
-            stroke: "#000",
-            strokeWidth: "3.56500006",
-            strokeLinecap: "butt",
-            strokeLinejoin: "bevel",
-          }}
+
+        <RightLine
+          // left={colPosition * spacing + initialX}
+          // top={initialY + vSpacing * rowPosition}
+
           x1={colPosition * spacing + initialX}
           y1={initialY + vSpacing * rowPosition}
           x2={(colPosition + 1) * spacing + initialX}
           y2={initialY + rowPosition * vSpacing}
-          stroke="#aff"
-          strokeWidth="2"
+
+
         />
+
       )}
-    </G>
+    </View>
   );
 };
 export default BoardMaker;

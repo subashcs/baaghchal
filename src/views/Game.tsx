@@ -7,6 +7,7 @@ import Board from "../components/Board";
 import { Store } from "../store";
 import checkResults from "../utils/checkResults";
 import { Card } from "react-native-elements";
+import { getDirection } from "../utils";
 
 type Props = {
   gameState?: State;
@@ -86,13 +87,14 @@ export default class extends React.Component<Props, State> {
         goatsAvailable,
         tigersAvailable,
         goatsKilled,
+        selected
       } = nextProps.gameState;
       if (
         Array.isArray(boardState) &&
         boardState.length > 2
       ) {
         //update state
-        return ({ tigerTurn, boardState, goatsAvailable, tigersAvailable, goatsKilled })
+        return ({ tigerTurn, boardState, goatsAvailable, tigersAvailable, goatsKilled, selected })
       }
     }
 
@@ -108,13 +110,12 @@ export default class extends React.Component<Props, State> {
     this.setState(() => ({ ...newState }));
   };
 
-  moveTiger = (initialPosition: number, newPosition: number, step: number) => {
+  makeTigerMove = (initialPosition: number, newPosition: number, step: number) => {
     let newBoardState = this.state.boardState;
     let moveOffset = newPosition - initialPosition;
     let middlePos = initialPosition + moveOffset / 2;
     let goatsKilled = this.state.goatsKilled;
 
-    console.log("moving tiger", middlePos, moveOffset, step);
 
     if (step === 1) {
       newBoardState[initialPosition] = null;
@@ -132,11 +133,12 @@ export default class extends React.Component<Props, State> {
       boardState: newBoardState,
       tigerTurn: false,
       goatsKilled: goatsKilled,
+      selected: null
     };
     this.updateState(newState);
   };
 
-  moveGoat = (initialPosition: number, newPosition: number) => {
+  makeGoatMove = (initialPosition: number, newPosition: number) => {
     let newBoardState = this.state.boardState;
     newBoardState[initialPosition] = null;
     newBoardState[newPosition] = GOAT;
@@ -144,8 +146,25 @@ export default class extends React.Component<Props, State> {
     let newState = {
       boardState: newBoardState,
       tigerTurn: true,
+      selected: null
     };
     this.updateState(newState);
+  };
+  moveGoat = (initialPosition: number, nextPosition: number) => {
+    const direction = getDirection(initialPosition, nextPosition);
+
+    let moveAllowed = this.isMoveAllowedGoat(
+      initialPosition,
+      nextPosition,
+      direction
+    );
+    if (moveAllowed) {
+      this.makeGoatMove(initialPosition, nextPosition);
+    } else {
+      console.log("resetting move");
+      this.resetGoatMove(initialPosition);
+    }
+
   };
 
   resetGoatMove = (position: number) => {
@@ -171,16 +190,8 @@ export default class extends React.Component<Props, State> {
     move: string,
     step: number
   ) => {
-    if (this.props.gameState?.role && this.props.gameState?.role === GOAT) {
-      return false;
-    }
-    console.log(
-      "checking move validity ",
-      move,
-      allowedMoves[initialPosition],
-      " board state:",
-      this.state.boardState[newPosition]
-    );
+    if (!this.isTiger()) return;
+
     if (newPosition > 24 && newPosition < 0) {
       return false;
     }
@@ -206,8 +217,6 @@ export default class extends React.Component<Props, State> {
         this.state.boardState[middlePos] === GOAT
       ) {
         return true;
-      } else {
-        return false;
       }
     }
     return false;
@@ -216,18 +225,10 @@ export default class extends React.Component<Props, State> {
   isMoveAllowedGoat = (
     initialPosition: number,
     newPosition: number,
-    move: string | undefined
+    move: string
   ) => {
-    if (this.props.gameState?.role && this.props.gameState?.role === TIGER) {
-      return false;
-    }
-    console.log(
-      "checking move validity ",
-      move,
-      allowedMoves[initialPosition],
-      " board state:",
-      this.state.boardState[newPosition]
-    );
+    if (!this.isGoat()) return;
+
     if (newPosition > 24) {
       return false;
     }
@@ -241,16 +242,58 @@ export default class extends React.Component<Props, State> {
     return false;
   };
 
-  handleHolderClick = (position: number) => {
-    console.log("on position", position);
-    if (this.state.tigerTurn) return;
-    this.putGoat(position);
+  moveTiger = (initialPosition: number, nextPosition: number) => {
+    let diff = Math.abs(nextPosition - initialPosition);
+    const direction = getDirection(initialPosition, nextPosition);
+
+    let step = diff === 2 || diff >= 8 ? 2 : 1
+    let moveAllowed = this.isMoveAllowedTiger(
+      initialPosition,
+      nextPosition,
+      direction,
+      step
+    );
+    if (moveAllowed) {
+      this.makeTigerMove(initialPosition, nextPosition, step);
+    } else {
+      this.resetTigerMove(initialPosition);
+    }
+
   };
 
-  putGoat = (position: number) => {
+  handleHolderClick = (position: number) => {
+    if (this.state.tigerTurn) {
+      // it must be checked for null this way otherwise chances are selected position 0 will malfunction
+      if (this.state.selected !== null && this.isTiger()) {
+        this.moveTiger(this.state.selected, position);
+      }
+    }
+    else {
+      if (this.state.selected !== null && this.isGoat()) {
+        this.moveGoat(this.state.selected, position);
+      }
+      else {
+        this.putGoat(position);
+      }
+    }
+  };
+  isTiger = () => {
+    if (this.props.gameState?.role && this.props.gameState?.role === GOAT) {
+      return false;
+    }
+    return true;
+  }
+  isGoat = () => {
+    //for offline and online compatibility in selectTigerToMove logic
+    //i.e if role is not specified the user is also considered goat 
     if (this.props.gameState?.role && this.props.gameState?.role === TIGER) {
       return false;
     }
+    return true;
+  }
+  putGoat = (position: number) => {
+    if (!this.isGoat()) return;
+
     let boardState = this.state.boardState;
     if (!boardState[position] && this.state.goatsAvailable > 0) {
       boardState[position] = GOAT;
@@ -264,11 +307,23 @@ export default class extends React.Component<Props, State> {
   };
 
   selectTigerToMove = (position: number) => {
+    if (!this.state.tigerTurn) return;
+    if (!this.isTiger()) return;
     let newState = {
-      selected: position,
+      selected: this.state.selected !== position ? position : null,
     };
     this.updateState(newState);
+
   };
+
+  selectGoatToMove = (position: number) => {
+    if (this.state.tigerTurn || this.state.goatsAvailable > 0) return;
+    if (!this.isGoat()) return;
+    let newState = {
+      selected: this.state.selected !== position ? position : null,
+    };
+    this.updateState(newState);
+  }
 
   render() {
 
@@ -289,7 +344,7 @@ export default class extends React.Component<Props, State> {
     }
     return (
       <View style={styles.game}>
-        <Svg height={verticalHolderSpacing * 5} width={windowWidth} fill="white">
+        <View style={{ height: verticalHolderSpacing * 5, width: windowWidth, backgroundColor: "#eeeeee" }} >
           <Rect
             fill="#bbbbbb"
             y="0"
@@ -306,6 +361,7 @@ export default class extends React.Component<Props, State> {
             goatsAvailable={goatsAvailable}
             selected={selected}
             selectTigerToMove={this.selectTigerToMove}
+            selectGoatToMove={this.selectGoatToMove}
             isMoveAllowedGoat={this.isMoveAllowedGoat}
             isMoveAllowedTiger={this.isMoveAllowedTiger}
             moveGoat={this.moveGoat}
@@ -313,7 +369,7 @@ export default class extends React.Component<Props, State> {
             resetGoatMove={this.resetGoatMove}
             resetTigerMove={this.resetTigerMove}
           />
-        </Svg>
+        </View>
         <View style={styles.bottomTab}>
           <Text style={styles.textStyle}>
             {this.state.tigerTurn ? "Tiger's Turn" : "Goats Turn"}

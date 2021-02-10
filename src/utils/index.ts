@@ -4,6 +4,45 @@ export function getTanFromDegrees(degrees: number) {
   return Math.tan((degrees * Math.PI) / 180);
 }
 
+/**
+ *
+ * @param initialPosition number
+ * @param nextPosition number
+ * @return direction string
+ *
+ */
+export function getDirection(initialPosition: number, nextPosition: number) {
+  let positionDiff = nextPosition - initialPosition;
+  let direction;
+  if (positionDiff < 0) {
+    if (positionDiff === -1 || positionDiff === -2) {
+      direction = mv.left;
+    } else if (positionDiff === -5 || positionDiff === -10) {
+      direction = mv.top;
+    } else if (positionDiff === -6 || positionDiff === -12) {
+      direction = mv.topLeft;
+    } else if (positionDiff === -4 || positionDiff === -8) {
+      direction = mv.topRight;
+    } else {
+      direction = "";
+    }
+  } else {
+    if (positionDiff === 1 || positionDiff === 2) {
+      direction = mv.right;
+    } else if (positionDiff === 5 || positionDiff === 10) {
+      direction = mv.bottom;
+    } else if (positionDiff === 6 || positionDiff === 12) {
+      direction = mv.bottomRight;
+    } else if (positionDiff === 4 || positionDiff === 8) {
+      direction = mv.bottomLeft;
+    } else {
+      direction = "";
+    }
+  }
+
+  return direction;
+}
+
 export function getMoveAngle(x: number, y: number) {
   let slope = y / x;
   let angle = (Math.atan(slope) * 180) / Math.PI;

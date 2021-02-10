@@ -15,12 +15,13 @@ export interface IAppProps {
   isMoveAllowedGoat: (
     initialPosition: number,
     newPosition: number,
-    move: string | undefined
+    move: string
   ) => boolean;
   moveGoat: (initialPosition: number, newPosition: number) => void;
   resetGoatMove: (position: number) => void;
 
   selectTigerToMove: (position: number) => void;
+  selectGoatToMove: (position: number) => void;
   selected: number | null;
   resetTigerMove: (position: number) => void;
   moveTiger: (
@@ -53,8 +54,8 @@ export default class Board extends React.Component<IAppProps> {
   }
 
   renderBoard = () => {
-    return Array(25)
-      .fill([])
+    let { boardState } = this.props;
+    return boardState
       .map((item, index) => {
         return (
           <BoardMaker
@@ -68,22 +69,23 @@ export default class Board extends React.Component<IAppProps> {
   };
 
   renderHolders = () => {
-    return Array(25)
-      .fill([])
-      .map((item, index) => {
-        let moves = allowedMoves[index];
-        return (
-          <Holder
-            key={index}
-            n={index}
-            possibleMoves={moves}
-            handleClick={this.props.handleHolderClick}
-            spacing={this.props.spacing}
-            vSpacing={this.props.vSpacing}
-          />
-        );
-      });
+    let { boardState } = this.props;
+    return boardState.map((item, index) => {
+      let moves = allowedMoves[index];
+      return (
+        <Holder
+          key={index}
+          n={index}
+          possibleMoves={moves}
+          handleClick={this.props.handleHolderClick}
+          spacing={this.props.spacing}
+          vSpacing={this.props.vSpacing}
+        />
+      );
+    });
   };
+
+
   renderTigerGoats = () => {
     let {
       boardState,
@@ -97,6 +99,7 @@ export default class Board extends React.Component<IAppProps> {
       spacing,
       vSpacing,
       selectTigerToMove,
+      selectGoatToMove,
       resetTigerMove,
       moveTiger,
       isMoveAllowedTiger,
@@ -108,10 +111,12 @@ export default class Board extends React.Component<IAppProps> {
         return (
           <Goat
             key={index}
+            selected={selected === index}
             n={index}
             moves={moves}
             movable={goatMovable}
             isMoveAllowed={isMoveAllowedGoat}
+            selectGoatToMove={selectGoatToMove}
             moveGoat={moveGoat}
             resetMove={resetGoatMove}
             spacing={spacing}
